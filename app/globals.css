@@ -279,6 +279,44 @@ textarea {
   min-height: 42px;
 }
 
+.result-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.engine-pill {
+  display: grid;
+  gap: 2px;
+  min-width: 150px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(17, 17, 17, 0.04);
+}
+
+.engine-pill span {
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.engine-pill strong {
+  font-size: 0.92rem;
+}
+
+.engine-pill.live {
+  background: rgba(47, 143, 107, 0.12);
+  border-color: rgba(47, 143, 107, 0.28);
+}
+
+.engine-pill.fallback {
+  background: rgba(255, 206, 82, 0.16);
+  border-color: rgba(244, 106, 31, 0.22);
+}
+
 .error-text {
   margin: 14px 0 0;
   color: var(--red);

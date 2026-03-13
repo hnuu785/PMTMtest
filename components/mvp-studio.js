@@ -17,7 +17,9 @@ export default function MvpStudio() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [result, setResult] = useState(null);
-  const [statusText, setStatusText] = useState("비트를 넣으면 바로 데모 가능한 초안을 만들어드립니다.");
+  const [statusText, setStatusText] = useState(
+    "비트를 넣으면 OpenAI 기반 생성 초안이 나오고, 키가 없으면 안전하게 템플릿 초안으로 폴백됩니다."
+  );
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -52,7 +54,7 @@ export default function MvpStudio() {
       }
 
       setAnalysis(nextAnalysis);
-      setStatusText("분석 결과를 바탕으로 랩 가사 초안을 조합하고 있습니다.");
+      setStatusText("분석 결과를 바탕으로 랩 가사를 생성하고 있습니다.");
 
       const response = await fetch("/api/generate", {
         method: "POST",
@@ -191,6 +193,10 @@ export default function MvpStudio() {
             </button>
           </div>
 
+          <p className="note-text">
+            `.env.local`에 `OPENAI_API_KEY`를 넣으면 실제 OpenAI 생성 모드가 활성화됩니다.
+          </p>
+
           {errorMessage ? <p className="error-text">{errorMessage}</p> : null}
         </div>
 
@@ -218,8 +224,11 @@ export default function MvpStudio() {
               </div>
 
               <div className="structure-list">
-                {analysis.structure.map((segment) => (
-                  <div key={`${segment.label}-${segment.seconds}`} className={`segment-card ${segment.intensity}`}>
+                {analysis.structure.map((segment, index) => (
+                  <div
+                    key={segment.id || `${segment.label}-${segment.seconds}-${index}`}
+                    className={`segment-card ${segment.intensity}`}
+                  >
                     <span>{segment.label}</span>
                     <strong>{segment.seconds}s</strong>
                     <small>{segment.intensity}</small>
@@ -240,12 +249,19 @@ export default function MvpStudio() {
                   <p className="eyebrow">Generated Draft</p>
                   <h3>{result.title}</h3>
                 </div>
-                <button type="button" className="ghost-button compact-button" onClick={handleCopyLyrics}>
-                  가사 복사
-                </button>
+                <div className="result-actions">
+                  <div className={`engine-pill ${result.engine?.mode || "fallback"}`}>
+                    <span>{result.engine?.label || "Draft"}</span>
+                    <strong>{result.engine?.model || "local-template"}</strong>
+                  </div>
+                  <button type="button" className="ghost-button compact-button" onClick={handleCopyLyrics}>
+                    가사 복사
+                  </button>
+                </div>
               </div>
 
               <p className="summary-text">{result.summary}</p>
+              {result.engine?.note ? <p className="note-text">{result.engine.note}</p> : null}
 
               <div className="coach-grid">
                 <CoachCard label="추천 전달감" value={result.flowGuide.delivery} />
@@ -261,8 +277,8 @@ export default function MvpStudio() {
                       <span>{section.note}</span>
                     </div>
                     <div className="lyric-lines">
-                      {section.lines.map((line) => (
-                        <p key={line}>{line}</p>
+                      {section.lines.map((line, index) => (
+                        <p key={`${section.name}-${index}`}>{line}</p>
                       ))}
                     </div>
                   </article>
